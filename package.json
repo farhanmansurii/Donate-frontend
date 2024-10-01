@@ -1,9 +1,6 @@
 {
   "name": "donation-app---project-3",
   "version": "0.1.0",
-  "engines": {
-    "node": ">=12.0.0 <20.0.0"
-  },
   "private": true,
   "homepage": ".",
   "engines": {
