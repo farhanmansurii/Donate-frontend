@@ -25,6 +25,7 @@ import SignIn from './components/pages/SignIn';
 
 import "./App.css";
 import SearchNews from "./components/pages/News";
+import DonateDetails from './components/pages/DonateDetails';
 
 function onAuthRequired({ history }) {
   history.push("/login");
@@ -50,6 +51,7 @@ class App extends Component {
                 <Route path="/about" exact={true} component={About} />
                 <Route path="/create-campaign" exact={true} component={CreateCampaign} />
                 <Route path="/donate" exact={true} component={DonateForm} />
+                <Route path="/donate/:slug" exact={true} component={DonateDetails} />
                 <Route path="/reviewCampaigns" exact={true} component={ReviewCampaigns} />
                 <Route path="/News" exact={true} component={SearchNews} />
                 <Route path="/Charity" exact={true} component={Charity} />

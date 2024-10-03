@@ -3,6 +3,8 @@ import { Container, Row, Col, Table, Button, Form, Modal } from 'react-bootstrap
 import API from './../../utils/API'; // Adjust the import path as necessary
 import Loading from './../../utils/Loading';
 import formatDate from './../../utils/DateFormatter';
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const Theme = {
     fontPrimary: "'Poppins', sans-serif",
@@ -67,7 +69,74 @@ const DonateForm = () => {
     };
 
     const handleClose = () => setShowModal(false);
+    const Theme = {
+        fontPrimary: "'Poppins', sans-serif",
+        fontSecondary: "'Playfair Display', serif",
+        primary: '#C9A86A', // Muted gold
+        secondary: '#8A7968', // Warm taupe
+        accent: '#D64C31', // Deep coral
+        background: '#0F1419', // Rich dark blue-gray
+        surface: '#1E2328', // Slightly lighter blue-gray
+        text: '#F2F2F2', // Off-white
+        textDark: '#A0A0A0', // Medium gray
+    };
 
+    const CampaignCard = styled.div`
+  background-color: ${Theme.surface};
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  &:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  }
+`;
+
+    const CampaignImage = styled.img`
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+`;
+
+    const CampaignContent = styled.div`
+  padding: 1.5rem;
+`;
+
+    const CampaignTitle = styled.h3`
+  font-family: ${Theme.fontSecondary};
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: ${Theme.primary};
+`;
+
+    const ProgressBar = styled.div`
+  width: 100%;
+  height: 10px;
+  background-color: ${Theme.background};
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+`;
+
+    const Progress = styled.div`
+  width: ${props => props.percent}%;
+  height: 100%;
+  background-color: ${Theme.secondary};
+`;
+
+    const H3 = styled.h3`
+  font-family: ${Theme.fontSecondary};
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #E0C9A6; // Soft gold color
+`;
+    const Paragraph = styled.p`
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  color: ${Theme.textDark};
+`;
     // Method to set donor name based on login status
     const setDonorNameFromSession = () => {
         const userObject = JSON.parse(sessionStorage.getItem('userData'));
@@ -87,75 +156,32 @@ const DonateForm = () => {
                                 <h1 style={{ fontWeight: "900", textAlign: "center", margin: "110px 0px 20px", fontFamily: Theme.fontPrimary, color: '#C9A86A' }}>
                                     All Active Campaigns
                                 </h1>
-                                <Table striped bordered hover variant="dark">
-                                    <thead>
-                                        <tr>
-                                            <th>Title</th>
-                                            <th>Description</th>
-                                            <th>Amount Raised</th>
-                                            <th>Amount Remaining</th>
-                                            <th>Top Donor</th>
-                                            <th>Created By</th>
-                                            <th>Created On</th>
-                                            <th>Enter Donation</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {donateForm.map(({ _id, title, description, amountRaised, remainingAmount, donations, createdUsername, createdUserEmail, createdOn }, index) => {
-                                            // Find the top donor
-                                            const topDonor = donations.length > 0 
-                                                ? donations.reduce((prev, current) => (prev.amount > current.amount) ? prev : current) 
-                                                : null;
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(3, 1fr)',
+                                    gap: '2rem',
+                                    margin: '2rem 0rem'
+                                }}>
+                                    {donateForm.map(({ _id, title, description, amountRaised, remainingAmount, donations, createdUsername, createdUserEmail, createdOn }, index) => {
+                                        const goalAmount = amountRaised + remainingAmount;
+                                        const progressPercentage = (amountRaised / goalAmount) * 100;
 
-                                            return (
-                                                <tr key={_id}>
-                                                    <td>{title}</td>
-                                                    <td>{description}</td>
-                                                    <td>{amountRaised}</td>
-                                                    <td>{remainingAmount}</td>
-                                                    <td>
-                                                        {topDonor ? (
-                                                            <React.Fragment>
-                                                                {topDonor.donorName}<br />
-                                                                <span style={{ fontStyle: 'italic', color: '#C9A86A' }}>
-                                                                    (${topDonor.amount})
-                                                                </span>
-                                                            </React.Fragment>
-                                                        ) : (
-                                                            'No Top Donor'
-                                                        )}
-                                                    </td>
-                                                    <td>
-                                                        {createdUsername}<br />
-                                                        <span style={{ fontStyle: 'italic', color: '#C9A86A' }}>
-                                                            ({createdUserEmail})
-                                                        </span>
-                                                    </td>
-                                                    <td>{formatDate(createdOn)}</td>
-                                                    <td>
-                                                        <Form.Control
-                                                            type="text"
-                                                            value={amountDonated[index]} // Bind to specific index
-                                                            onChange={(event) => handleInputChange(index, event)} // Pass index to handler
-                                                            placeholder='Amount'
-                                                        />
-                                                    </td>
-                                                    <td>
-                                                        <Button 
-                                                            variant="success" 
-                                                            style={{ borderRadius: '5px', padding: '10px 20px', fontWeight: 'bold' }} 
-                                                            onClick={() => handleDonationSuccess(_id, index)}
-                                                        >
-                                                            Donate
-                                                        </Button>
-                                                    </td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </Table>
-
+                                        return (
+                                            <Link to={`/donate/${_id}`}>
+                                                <CampaignCard key={_id} className="grid-item">
+                                                    <CampaignContent>
+                                                        <CampaignTitle>{title}</CampaignTitle>
+                                                        <ProgressBar className="progress-bar" data-progress={progressPercentage.toFixed(0)}>
+                                                            <Progress style={{ width: `${progressPercentage}%` }} />
+                                                        </ProgressBar>
+                                                        <Paragraph>${amountRaised.toLocaleString()} raised of ${goalAmount.toLocaleString()} goal</Paragraph>
+                                                        {createdUsername && <Paragraph style={{ fontStyle: 'italic', fontSize: '15px' }}>created by : {createdUsername}</Paragraph>}
+                                                    </CampaignContent>
+                                                </CampaignCard>
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
                                 {/* Modal for Donation Success */}
                                 <Modal show={showModal} onHide={handleClose} centered style={{ backgroundColor: Theme.background }}>
                                     <Modal.Body style={{ textAlign: 'center', backgroundColor: Theme.background }}>
